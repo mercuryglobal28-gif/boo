@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты поиска: {{ query }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        h2 { border-bottom: 2px solid #2c3e50; padding-bottom: 10px; }
+        .book-item { padding: 15px; border-bottom: 1px solid #eee; }
+        .book-item a { text-decoration: none; color: #2980b9; font-size: 18px; font-weight: bold; }
+        .book-item a:hover { text-decoration: underline; }
+        .back-link { display: inline-block; margin-top: 20px; color: #e74c3c; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Результаты для: "{{ query }}"</h2>
+        {% if books %}
+            {% for book in books %}
+                <div class="book-item">
+                    <a href="{{ book.link }}">{{ book.title }}</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Книги не найдены (لم يتم العثور على كتب).</p>
+        {% endif %}
+        <a href="/" class="back-link">← Вернуться к поиску (العودة للبحث)</a>
+    </div>
+</body>
+</html>
