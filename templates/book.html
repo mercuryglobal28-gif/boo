@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; display: flex; justify-content: center;}
+        .container { width: 100%; max-width: 600px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;}
+        h2 { color: #2c3e50; }
+        .formats { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .format-btn { display: inline-block; padding: 10px 20px; background: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .format-btn:hover { background: #2ecc71; }
+        .back-link { display: block; margin-top: 30px; color: #7f8c8d; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>{{ title }}</h2>
+        <p>Выберите формат для скачивания:</p> <div class="formats">
+            {% if formats %}
+                {% for format in formats %}
+                    <a href="/download/{{ format.download_path }}" class="format-btn">{{ format.format }}</a>
+                {% endfor %}
+            {% else %}
+                <p>Нет доступных форматов .</p>
+            {% endif %}
+        </div>
+
+        <a href="javascript:history.back()" class="back-link">← Назад </a>
+    </div>
+</body>
+</html>
