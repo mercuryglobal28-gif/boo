@@ -2,31 +2,39 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Скачать</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; display: flex; justify-content: center;}
-        .container { width: 100%; max-width: 600px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center;}
-        h2 { color: #2c3e50; }
-        .formats { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .format-btn { display: inline-block; padding: 10px 20px; background: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
-        .format-btn:hover { background: #2ecc71; }
-        .back-link { display: block; margin-top: 30px; color: #7f8c8d; text-decoration: none; }
+        body { font-family: sans-serif; background: #fff; padding: 20px; text-align: center; }
+        .container { max-width: 500px; margin: auto; }
+        h1 { font-size: 1.5rem; color: #222; margin-bottom: 30px; }
+        .download-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn { padding: 20px; border-radius: 12px; text-decoration: none; font-weight: bold; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; }
+        .EPUB { background: #8e44ad; }
+        .MOBI { background: #2980b9; }
+        .FB2 { background: #27ae60; }
+        .PDF { background: #c0392b; }
+        .OTHER { background: #7f8c8d; }
+        .btn:active { opacity: 0.7; transform: scale(0.95); }
+        .back { display: block; margin-top: 40px; color: #666; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>{{ title }}</h2>
-        <p>Выберите формат для скачивания:</p> <div class="formats">
-            {% if formats %}
-                {% for format in formats %}
-                    <a href="/download/{{ format.download_path }}" class="format-btn">{{ format.format }}</a>
-                {% endfor %}
-            {% else %}
-                <p>Нет доступных форматов .</p>
-            {% endif %}
+        <h1>{{ title }}</h1>
+        <p>Доступные форматы:</p>
+        <div class="download-grid">
+            {% for fmt in formats %}
+            <a href="/download/{{ fmt.path }}" class="btn {{ fmt.name if fmt.name in ['EPUB','MOBI','FB2','PDF'] else 'OTHER' }}">
+                <span>{{ fmt.name }}</span>
+                <small style="font-size: 10px; opacity: 0.8;">СКАЧАТЬ</small>
+            </a>
+            {% endfor %}
         </div>
-
-        <a href="javascript:history.back()" class="back-link">← Назад </a>
+        {% if not formats %}
+        <p style="color:red">Извините, прямые ссылки не найдены. Попробуйте другую книгу.</p>
+        {% endif %}
+        <a href="javascript:history.back()" class="back">← Назад</a>
     </div>
 </body>
 </html>
