@@ -5,68 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
     <style>
-        body { font-family: -apple-system, system-ui, sans-serif; background: #f0f2f5; padding: 15px; margin: 0; text-align: center; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 15px; margin: 0; text-align: center; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
-        /* تنسيق الصورة */
-        .cover-wrapper { margin-bottom: 20px; }
+        .cover-section { margin-bottom: 25px; }
         .book-cover { 
-            max-width: 200px; 
-            width: 100%; 
-            height: auto; 
-            border-radius: 10px; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            border: 1px solid #eee;
+            width: 180px; height: auto; border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            background: #eee; min-height: 250px; object-fit: cover;
         }
 
-        h1 { font-size: 1.4rem; color: #1a1a1a; margin-bottom: 20px; line-height: 1.3; }
-        .download-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        h1 { font-size: 1.3rem; margin-bottom: 20px; color: #1a1a1a; line-height: 1.4; }
+        .download-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .btn { 
-            padding: 15px; 
-            border-radius: 12px; 
-            text-decoration: none; 
-            font-weight: bold; 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
-            transition: 0.2s; 
+            padding: 18px 10px; border-radius: 12px; text-decoration: none; 
+            font-weight: bold; color: white; display: flex; flex-direction: column;
         }
-        .EPUB { background: #8e44ad; }
-        .MOBI { background: #2980b9; }
-        .FB2 { background: #27ae60; }
-        .PDF { background: #c0392b; }
+        .EPUB { background: #8e44ad; } .MOBI { background: #2980b9; }
+        .FB2 { background: #27ae60; } .PDF { background: #c0392b; }
         .OTHER { background: #7f8c8d; }
-        .btn:active { transform: scale(0.95); opacity: 0.8; }
-        .back { display: block; margin-top: 30px; color: #666; text-decoration: none; font-size: 0.9rem; }
+        .back { display: block; margin-top: 30px; color: #888; text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        
-        {% if image_url %}
-        <div class="cover-wrapper">
-            <img src="{{ image_url }}" class="book-cover" alt="обложка">
+        <div class="cover-section">
+            {% if image_url %}
+                <img src="{{ image_url }}" class="book-cover" alt="Обложка">
+            {% else %}
+                <div class="book-cover" style="display:flex; align-items:center; justify-content:center; margin:auto;">
+                    <span style="color:#999">Нет обложки</span>
+                </div>
+            {% endif %}
         </div>
-        {% endif %}
 
         <h1>{{ title }}</h1>
-        
-        <p style="color: #666; font-size: 0.9rem;">Выберите формат для скачивания:</p>
         
         <div class="download-grid">
             {% for fmt in formats %}
             <a href="/download/{{ fmt.path }}" class="btn {{ fmt.name if fmt.name in ['EPUB','MOBI','FB2','PDF'] else 'OTHER' }}">
                 <span>{{ fmt.name }}</span>
-                <span style="font-size: 10px; font-weight: normal; margin-top: 4px;">СКАЧАТЬ</span>
+                <small style="font-size: 9px; opacity: 0.8; margin-top: 5px;">СКАЧАТЬ</small>
             </a>
             {% endfor %}
         </div>
 
-        {% if not formats %}
-        <p style="color:#e74c3c; margin-top: 20px;">Ссылки لتنزيل غير متاحة لهذا الكتاب.</p>
-        {% endif %}
-
-        <a href="javascript:history.back()" class="back">← Назад к результатам</a>
+        <a href="javascript:history.back()" class="back">← Вернуться назад</a>
     </div>
 </body>
 </html>
