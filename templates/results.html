@@ -2,30 +2,27 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Результаты поиска: {{ query }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-        h2 { border-bottom: 2px solid #2c3e50; padding-bottom: 10px; }
-        .book-item { padding: 15px; border-bottom: 1px solid #eee; }
-        .book-item a { text-decoration: none; color: #2980b9; font-size: 18px; font-weight: bold; }
-        .book-item a:hover { text-decoration: underline; }
-        .back-link { display: inline-block; margin-top: 20px; color: #e74c3c; text-decoration: none; }
+        body { font-family: sans-serif; background: #f8f9fa; padding: 15px; }
+        .container { max-width: 600px; margin: auto; }
+        .book-card { background: white; padding: 15px; margin-bottom: 12px; border-radius: 10px; border-left: 5px solid #1a73e8; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .book-card:active { background: #f0f0f0; }
+        .title { font-weight: bold; font-size: 16px; flex: 1; margin-right: 10px; }
+        .arrow { color: #ccc; font-size: 20px; }
+        h2 { font-size: 1.2rem; color: #555; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Результаты для: "{{ query }}"</h2>
-        {% if books %}
-            {% for book in books %}
-                <div class="book-item">
-                    <a href="{{ book.link }}">{{ book.title }}</a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>Книги не найдены (لم يتم العثور على كتب).</p>
-        {% endif %}
-        <a href="/" class="back-link">← Вернуться к поиску (العودة للبحث)</a>
+        <h2>Поиск: {{ query }}</h2>
+        {% for book in books %}
+        <a href="{{ book.link }}" class="book-card">
+            <div class="title">{{ book.title }}</div>
+            <div class="arrow">›</div>
+        </a>
+        {% endfor %}
     </div>
 </body>
 </html>
