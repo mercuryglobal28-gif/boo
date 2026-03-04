@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Электронная Библиотека</title>
+    <title>Библиотека</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f7f6; display: flex; flex-direction: column; align-items: center; }
-        header { background: #2c3e50; color: white; width: 100%; padding: 20px 0; text-align: center; }
-        .container { width: 90%; max-width: 600px; margin-top: 50px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
-        input { width: 70%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 10px 20px; font-size: 16px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #c0392b; }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: #1a73e8; color: white; padding: 40px 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .main-card { background: white; margin: -30px auto 20px; width: 90%; max-width: 500px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; margin-bottom: 15px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #1a73e8; }
+        button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        @media (max-width: 600px) { header { padding: 30px 10px; } .main-card { width: 95%; padding: 20px; } }
     </style>
 </head>
 <body>
-    <header><h1>Электронная Библиотека</h1><p>Поиск книг</p></header>
-    <div class="container">
+    <header><h1>Книжный Поиск</h1></header>
+    <div class="main-card">
         <form action="/search" method="GET">
-            <input type="text" name="q" placeholder="Введите название или автора..." required>
-            <button type="submit">Искать</button>
+            <input type="search" name="q" placeholder="Название книги или автор..." required>
+            <button type="submit">Найти книгу</button>
         </form>
     </div>
 </body>
