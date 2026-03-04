@@ -23,13 +23,23 @@ def search():
         soup = BeautifulSoup(resp.content, 'html.parser')
         books = []
         
+        # استخراج الكتب والمؤلفين من القائمة
         for li in soup.find_all('li'):
-            a_tags = li.find_all('a', href=True)
-            if len(a_tags) >= 1:
-                link = a_tags[0]
-                href = link['href']
-                if href.startswith('/b/'):
-                    books.append({'title': link.text.strip(), 'link': href})
+            links = li.find_all('a', href=True)
+            # في Flibusta: أول رابط هو الكتاب، والروابط التالية عادة للمؤلفين
+            if links and links[0]['href'].startswith('/b/'):
+                book_title = links[0].text.strip()
+                book_href = links[0]['href']
+                
+                # جلب المؤلفين (غالباً ما يكونون الروابط التالية في نفس السطر)
+                authors = [a.text.strip() for a in links[1:] if a['href'].startswith('/a/')]
+                author_name = ", ".join(authors) if authors else "Автор не указан"
+                
+                books.append({
+                    'title': book_title,
+                    'author': author_name,
+                    'link': book_href
+                })
         
         return render_template('results.html', books=books, query=query)
     except Exception as e:
@@ -42,15 +52,16 @@ def book_details(book_id):
         resp = requests.get(book_url, headers=HEADERS, timeout=15)
         soup = BeautifulSoup(resp.content, 'html.parser')
         
-        # جلب العنوان
         title = soup.find('h1', class_='title').text if soup.find('h1', class_='title') else "Книга"
         
-        # جلب صورة الغلاف (Proxy)
-        img_tag = soup.find('img', src=True)
+        # تحسين جلب الصورة: نبحث عن أي صورة داخل المحتوى الأساسي
+        img_tag = soup.find('img', title="Cover image") or soup.find('img', src=True)
         image_url = None
-        if img_tag and '/i/' in img_tag['src']:
-            # نرسل رابط الصورة إلى مسار الـ proxy الخاص بنا
-            image_url = f"/proxy_media?url={urllib.parse.quote(img_tag['src'])}"
+        if img_tag:
+            src = img_tag['src']
+            # نمرر الرابط الكامل للمؤدي (Proxy)
+            full_img_path = src if src.startswith('http') else f"{TARGET_SITE}{src}"
+            image_url = f"/proxy_media?url={urllib.parse.quote(full_img_path)}"
 
         formats = []
         for a in soup.find_all('a', href=True):
@@ -66,17 +77,16 @@ def book_details(book_id):
     except Exception as e:
         return f"Ошибка: {e}"
 
-# ممر (Proxy) للصور والملفات لتجاوز الحجب
 @app.route('/proxy_media')
 def proxy_media():
-    media_url = request.args.get('url')
-    if not media_url: return "", 404
-    
-    # تصحيح الرابط إذا كان نسبياً
-    full_url = media_url if media_url.startswith('http') else f"{TARGET_SITE}{media_url}"
-    
-    req = requests.get(full_url, headers=HEADERS, stream=True)
-    return Response(req.content, content_type=req.headers.get('content-type'))
+    target_url = request.args.get('url')
+    if not target_url: return "", 404
+    try:
+        # جلب الصورة من الموقع الأصلي عبر السيرفر (VPS)
+        img_resp = requests.get(target_url, headers=HEADERS, timeout=10)
+        return Response(img_resp.content, content_type=img_resp.headers.get('content-type'))
+    except:
+        return "", 404
 
 @app.route('/download/<path:filepath>')
 def download(filepath):
