@@ -5,24 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Результаты</title>
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; padding: 15px; }
+        body { font-family: sans-serif; background: #f8f9fa; padding: 15px; margin: 0; }
         .container { max-width: 600px; margin: auto; }
-        .book-card { background: white; padding: 15px; margin-bottom: 12px; border-radius: 10px; border-left: 5px solid #1a73e8; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .book-card:active { background: #f0f0f0; }
-        .title { font-weight: bold; font-size: 16px; flex: 1; margin-right: 10px; }
-        .arrow { color: #ccc; font-size: 20px; }
-        h2 { font-size: 1.2rem; color: #555; }
+        .book-card { 
+            background: white; padding: 15px; margin-bottom: 12px; 
+            border-radius: 12px; display: block; text-decoration: none; 
+            color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: 0.2s; border: 1px solid #eee;
+        }
+        .book-card:active { background: #f0f0f0; transform: scale(0.98); }
+        .title { font-weight: bold; font-size: 17px; color: #1a73e8; display: block; margin-bottom: 5px; }
+        .author { font-size: 14px; color: #666; font-style: italic; }
+        h2 { font-size: 1.1rem; color: #555; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Поиск: {{ query }}</h2>
+        <h2>Найдено по запросу: "{{ query }}"</h2>
         {% for book in books %}
         <a href="{{ book.link }}" class="book-card">
-            <div class="title">{{ book.title }}</div>
-            <div class="arrow">›</div>
+            <span class="title">{{ book.title }}</span>
+            <span class="author">👤 {{ book.author }}</span>
         </a>
         {% endfor %}
+        {% if not books %}
+            <p>Ничего не найдено.</p>
+        {% endif %}
     </div>
 </body>
 </html>
