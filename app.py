@@ -6,83 +6,73 @@ from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 TARGET_SITE = "https://flibusta.is"
+HEADERS = {'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1'}
 
-# الصفحة الرئيسية
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# البحث
 @app.route('/search')
 def search():
     query = request.args.get('q', '')
-    if not query:
-        return render_template('index.html')
+    if not query: return render_template('index.html')
     
-    # تشفير النص ليتناسب مع الروابط (URL Encoding)
     search_url = f"{TARGET_SITE}/booksearch?ask={urllib.parse.quote(query)}"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-    
     try:
-        resp = requests.get(search_url, headers=headers, timeout=15)
+        resp = requests.get(search_url, headers=HEADERS, timeout=15)
         soup = BeautifulSoup(resp.content, 'html.parser')
-        
         books = []
-        # جلب روابط الكتب من نتائج البحث
-        for link in soup.find_all('a', href=True):
-            href = link['href']
-            text = link.text.strip()
-            # التأكد أن الرابط لكتاب وليس صفحة أخرى
-            if href.startswith('/b/') and text and not href.endswith('download'):
-                books.append({'title': text, 'link': href})
         
-        # إزالة التكرار
-        unique_books = {b['link']: b for b in books}.values()
-        return render_template('results.html', books=unique_books, query=query)
+        # تحسين البحث عن الكتب في القائمة
+        for li in soup.find_all('li'):
+            a_tags = li.find_all('a', href=True)
+            if len(a_tags) >= 1:
+                link = a_tags[0]
+                href = link['href']
+                if href.startswith('/b/'):
+                    books.append({'title': link.text.strip(), 'link': href})
+        
+        return render_template('results.html', books=books, query=query)
     except Exception as e:
-        return f"<h3 style='color:red; text-align:center;'>Ошибка соединения: {e}</h3>"
+        return f"Ошибка: {e}"
 
-# تفاصيل الكتاب وصيغ التحميل
 @app.route('/b/<book_id>')
 def book_details(book_id):
     book_url = f"{TARGET_SITE}/b/{book_id}"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-    
     try:
-        resp = requests.get(book_url, headers=headers, timeout=15)
+        resp = requests.get(book_url, headers=HEADERS, timeout=15)
         soup = BeautifulSoup(resp.content, 'html.parser')
+        title = soup.find('h1', class_='title').text if soup.find('h1', class_='title') else "Книга"
         
-        title_tag = soup.find('h1', class_='title')
-        title = title_tag.text if title_tag else "Без названия (بدون عنوان)"
-        
-        # استخراج صيغ التحميل (epub, mobi, fb2, pdf)
         formats = []
-        for link in soup.find_all('a', href=True):
-            href = link['href']
-            text = link.text.strip().lower()
-            if text in ['epub', 'mobi', 'fb2', 'pdf', 'djvu', 'rtf', 'txt']:
-                # حفظ المسار الكامل للتحميل
-                formats.append({'format': text.upper(), 'download_path': href.lstrip('/')})
-                
+        # البحث عن روابط التحميل التي تحتوي على صيغ معينة في مسار الرابط
+        for a in soup.find_all('a', href=True):
+            href = a['href']
+            text = a.text.lower()
+            # Flibusta يستخدم روابط مثل /b/12345/epub أو نص الرابط يكون (epub)
+            valid_formats = ['epub', 'mobi', 'fb2', 'pdf', 'djvu', 'txt']
+            for fmt in valid_formats:
+                if f"/{fmt}" in href or f"({fmt})" in text or text == fmt:
+                    formats.append({
+                        'name': fmt.upper(),
+                        'path': href.lstrip('/')
+                    })
+                    break # منع التكرار لنفس الرابط
+
         return render_template('book.html', title=title, formats=formats)
     except Exception as e:
-        return f"<h3 style='color:red; text-align:center;'>Ошибка загрузки книги: {e}</h3>"
+        return f"Ошибка: {e}"
 
-# تمرير التحميل (Proxy Download)
 @app.route('/download/<path:filepath>')
 def download(filepath):
-    download_url = f"{TARGET_SITE}/{filepath}"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-    
-    req = requests.get(download_url, headers=headers, stream=True)
-    
+    # تمرير التحميل عبر السيرفر لتجاوز الحجب
+    req = requests.get(f"{TARGET_SITE}/{filepath}", headers=HEADERS, stream=True)
     return Response(
-        stream_with_context(req.iter_content(chunk_size=1024)),
+        stream_with_context(req.iter_content(chunk_size=4096)),
         content_type=req.headers.get('content-type'),
-        headers={'Content-Disposition': req.headers.get('Content-Disposition', 'attachment')}
+        headers={'Content-Disposition': f'attachment; filename="book_{filepath.split("/")[-1]}"'}
     )
 
 if __name__ == '__main__':
-    # تحديد المنفذ بناءً على متطلبات الخادم (Render)
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
